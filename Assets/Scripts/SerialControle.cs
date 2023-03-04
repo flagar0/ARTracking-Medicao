@@ -6,6 +6,7 @@ using System.Net.Sockets;
 using System.Text;
 using Newtonsoft.Json.Linq;
 using System.IO;
+using UnityEngine.UI;
 
 public class SerialControle : MonoBehaviour
 {
@@ -37,38 +38,41 @@ public class SerialControle : MonoBehaviour
     ,"rotation_right_y","rotation_right_z","rotation_up_x","rotation_up_y","rotation_up_z","rotation_forward_x"
     ,"rotation_forward_y","rotation_forward_z"};
 
-    bool gravar = false;//bool para comecar a gravar
+    public bool gravar = false;//bool para comecar a gravar
     bool gravou = false;//define se ja comecou a gravar
     public GameObject rec;
+    public Text Infos_debug;
+    string receivedString;
 
     void Start()
     {
         InitializeUDPListener();
-        CriaCSV();
     }
     void CriaCSV()
     {
         try
         {
             arquivo = new StreamWriter(Application.dataPath + "/Data/" + "coisas.csv");
+            for (int i = 0; i < jtokens.Length; i++)
+            {
+                arquivo.Write(jtokens[i]);
+                if (i < jtokens.Length - 1)
+                {
+                    arquivo.Write(",");
+                }
+                else
+                {
+                    arquivo.WriteLine();
+                }
+            }
+            Debug.Log("Arquivo criando com sucesso!");
         }
         catch (System.Exception e)
         {
             Debug.Log(e);
 
         }
-        for (int i = 0; i < jtokens.Length; i++)
-        {
-            arquivo.Write(jtokens[i]);
-            if (i < jtokens.Length - 1)
-            {
-                arquivo.Write(",");
-            }
-            else
-            {
-                arquivo.WriteLine();
-            }
-        }
+
     }
     public void InitializeUDPListener()
     {
@@ -90,15 +94,17 @@ public class SerialControle : MonoBehaviour
     {
         receivedBytes = clientData.EndReceive(result, ref ipEndPointData);
         byte[] receiveBytes = clientData.Receive(ref ipEndPointData);
-        string receivedString = Encoding.ASCII.GetString(receiveBytes);
+        receivedString = Encoding.ASCII.GetString(receiveBytes);
         json = JObject.Parse(receivedString);
         if (json["success"].ToString() == "True")
         {
             Movimentar = true;
+
         }
         else
         {
             Movimentar = false;
+
         }
         clientData.BeginReceive(AC, obj);
 
@@ -108,17 +114,30 @@ public class SerialControle : MonoBehaviour
 
     private void FixedUpdate()
     {
-        rec.SetActive(gravar);
         if (Input.GetKeyDown("r"))
         {
-            gravar = !gravar;
+            if (gravar == false)
+            {
+                gravar = true;
+
+                rec.SetActive(true);
+                CriaCSV();
+            }
+            else
+            {
+                gravar = false;
+                rec.SetActive(false);
+                FechaCSV();
+            }
             gravou = true;
         }
+
 
         try // Movimenta Cubo
         {
             if (Movimentar)
             {
+                Infos_debug.text = receivedString;
                 news[0] = float.Parse(json["translation_x"].ToString()) / Sensibilidade;
                 news[1] = float.Parse(json["translation_y"].ToString()) / Sensibilidade;
                 news[2] = float.Parse(json["translation_z"].ToString()) / Sensibilidade;
@@ -148,7 +167,7 @@ public class SerialControle : MonoBehaviour
 
 
                 //Translacao
-                Cubo.transform.Translate(new Vector3(-news[0] + olds[0], -news[1] + olds[1], news[2] - olds[2]), Space.World);
+                Cubo.transform.Translate(new Vector3(news[0] - olds[0], -news[1] + olds[1], -news[2] + olds[2]), Space.World);
 
                 if (Cubo.transform.position.z < -4 || Cubo.transform.position.z > 4)
                 {//Limite de posicao z
@@ -170,7 +189,7 @@ public class SerialControle : MonoBehaviour
 
 
                 //Salva posicoes antigas
-                Debug.Log(news[0]);
+                //Debug.Log(news[0]);
                 olds[0] = news[0];
                 olds[1] = news[1];
                 olds[2] = news[2];
@@ -179,6 +198,7 @@ public class SerialControle : MonoBehaviour
             }
             else
             {// == false
+                Infos_debug.text = "Nao Conectado";
                 new_timestamp = json["timestamp"].ToString();
                 if (gravar && new_timestamp != old_timestamp)
                 {
@@ -191,10 +211,7 @@ public class SerialControle : MonoBehaviour
         {
             Debug.Log(e);
         }
-        if (gravar == false && gravou == true)
-        {//comecou a gravar e quer parar
-            FechaCSV();
-        }
+
     }
 
 
@@ -224,9 +241,9 @@ public class SerialControle : MonoBehaviour
                 {
                     arquivo.Write(json[jtokens[i]].ToString().Replace(',', '.'));
                 }
-            
 
-                if (i <=1)
+
+                if (i <= 1)
                 {
                     arquivo.Write(",");
                 }
@@ -243,14 +260,17 @@ public class SerialControle : MonoBehaviour
     {
         arquivo.Flush();
         arquivo.Close();
-        Debug.Log("Criado com sucesso");
+        Debug.Log("Salvo com sucesso");
     }
     void OnDestroy()
     {
         if (clientData != null)
         {
             clientData.Close();
-            FechaCSV();
+            if(gravou){
+                FechaCSV();
+            }
+            
         }
 
     }
