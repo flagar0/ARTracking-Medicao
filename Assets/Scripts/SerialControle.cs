@@ -7,29 +7,60 @@ using System.Text;
 using Newtonsoft.Json.Linq;
 using System.IO;
 using UnityEngine.UI;
+using System;
 
 public class SerialControle : MonoBehaviour
 {
 
+
     UdpClient clientData;
-    int portData = 9000;
+
+    [Header("Server UDP")]
+    public int portData = 9000;
     public int receiveBufferSize = 120000;
 
-    public bool showDebug = false;
     IPEndPoint ipEndPointData;
     private object obj = null;
     private System.AsyncCallback AC;
     byte[] receivedBytes;
-    /////
-    float[] olds = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };//x ,y, z - right - up - forward
-    float[] news = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };//x ,y, z- right - up - forward
+    ////////////////////////////////////////////
+    float[] oldPositions = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };//x ,y, z - right - up - forward
+    float[] newPositions = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };//x ,y, z- right - up - forward
     JObject json;
-    bool uma_vez = false;
-    [SerializeField] int Sensibilidade = 5;
+    bool uma_vez = false; //Saber quando o programa rodar na primeira vez
 
-    public GameObject Cubo;
-    bool Movimentar = false;
-    string new_timestamp, old_timestamp;
+    [Serializable]
+    public class Configuracoes
+    {
+        [Header("Inverter Direcao")]
+        [Range(-1, 1)]
+        public int x_inversor = 1;
+        [Range(-1, 1)]
+        public int y_inversor = 1;
+        [Range(-1, 1)]
+        public int z_inversor = 1;
+        [Header("Ajustes")]
+        [SerializeField]
+        public int Sensibilidade = 5;
+        [Header("Limites")]
+        [SerializeField]
+        public float max_x = 4;
+        public float min_x = -4;
+        public float max_y = 2.5f;
+        public float min_y = -2.5f;
+        public float max_z = 4;
+        public float min_z = -4;
+
+
+    }
+
+
+
+    [Header("Objetos")]
+
+    public GameObject Cubo; // Objeto que sera movimentado
+    bool Movimentar = false; // Booleana para liberar o movimento do objeto
+    string new_timestamp, old_timestamp; //Variaveis que guardam o tempo enviado pelo ar tracking
 
 
     Vector3 UltimaPos;
@@ -38,17 +69,17 @@ public class SerialControle : MonoBehaviour
     ,"rotation_right_y","rotation_right_z","rotation_up_x","rotation_up_y","rotation_up_z","rotation_forward_x"
     ,"rotation_forward_y","rotation_forward_z"};
 
-    public bool gravar = false;//bool para comecar a gravar
-    bool gravou = false;//define se ja comecou a gravar
-    public GameObject rec;
-    public Text Infos_debug;
+    bool gravar = false; //bool para comecar a gravar
+    public GameObject rec; //UI que avisa se esta gravando
+    public Text Infos_debug; //Texto que mostra os dados recebidos do ar tracking
     string receivedString;
 
+    public Configuracoes config;
     void Start()
     {
-        InitializeUDPListener();
+        ConectarUDP();
     }
-    void CriaCSV()
+    void CriaCSV() //Cria o arquivo CSV aonde serao armazenados os dados
     {
         try
         {
@@ -74,23 +105,20 @@ public class SerialControle : MonoBehaviour
         }
 
     }
-    public void InitializeUDPListener()
+    public void ConectarUDP() //Conecta no servidor  do AR TRacking
     {
         ipEndPointData = new IPEndPoint(IPAddress.Loopback, portData);
         clientData = new UdpClient();
         clientData.Client.ReceiveBufferSize = receiveBufferSize;
         clientData.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, optionValue: true);
-        clientData.ExclusiveAddressUse = false;
-        clientData.EnableBroadcast = true;
         clientData.Client.Bind(ipEndPointData);
-        clientData.DontFragment = true;
-        if (showDebug) Debug.Log("BufSize: " + clientData.Client.ReceiveBufferSize);
-        AC = new System.AsyncCallback(ReceivedUDPPacket);
+        Debug.Log("BufSize: " + clientData.Client.ReceiveBufferSize);
+        AC = new System.AsyncCallback(LeitorUDP);
         clientData.BeginReceive(AC, obj);
-        Debug.Log("UDP - Start Receiving..");
+        Debug.Log("Conectando com AR Tracking");
     }
 
-    void ReceivedUDPPacket(System.IAsyncResult result)
+    void LeitorUDP(System.IAsyncResult result) // Le os dados enviados pelo AR Tracking
     {
         receivedBytes = clientData.EndReceive(result, ref ipEndPointData);
         byte[] receiveBytes = clientData.Receive(ref ipEndPointData);
@@ -99,22 +127,20 @@ public class SerialControle : MonoBehaviour
         if (json["success"].ToString() == "True")
         {
             Movimentar = true;
-
         }
         else
         {
             Movimentar = false;
-
         }
         clientData.BeginReceive(AC, obj);
 
 
-    } // ReceiveCallBack
+    }
 
 
     private void FixedUpdate()
     {
-        if (Input.GetKeyDown("r"))
+        if (Input.GetKeyDown("r")) //Botao de comecar a gravar
         {
             if (gravar == false)
             {
@@ -129,28 +155,25 @@ public class SerialControle : MonoBehaviour
                 rec.SetActive(false);
                 FechaCSV();
             }
-            gravou = true;
+
         }
 
+        MovimentaCubo();
 
+    }
+
+
+    void MovimentaCubo()
+    {
         try // Movimenta Cubo
         {
             if (Movimentar)
             {
                 Infos_debug.text = receivedString;
-                news[0] = float.Parse(json["translation_x"].ToString()) / Sensibilidade;
-                news[1] = float.Parse(json["translation_y"].ToString()) / Sensibilidade;
-                news[2] = float.Parse(json["translation_z"].ToString()) / Sensibilidade;
-                news[6] = float.Parse(json["rotation_up_x"].ToString());
-                news[7] = float.Parse(json["rotation_up_y"].ToString());
-                news[8] = float.Parse(json["rotation_up_z"].ToString());
-                news[9] = float.Parse(json["rotation_forward_x"].ToString());
-                news[10] = float.Parse(json["rotation_forward_y"].ToString());
-                news[11] = float.Parse(json["rotation_forward_z"].ToString());
-                new_timestamp = json["timestamp"].ToString();
+                SalvaDadosJson();//Salva os dados recebidos
 
 
-                if (gravar && new_timestamp != old_timestamp)
+                if (gravar && new_timestamp != old_timestamp) //Nao deixa repetir os valores no mesmo tempo
                 {
                     AnotaCSV(true);
                 }
@@ -158,46 +181,35 @@ public class SerialControle : MonoBehaviour
 
                 if (uma_vez == false) // executa uma vez para o cubo nao ir longe
                 {
-                    olds[0] = news[0];
-                    olds[1] = news[1];
-                    olds[2] = news[2];
+                    oldPositions[0] = newPositions[0];
+                    oldPositions[1] = newPositions[1];
+                    oldPositions[2] = newPositions[2];
                     uma_vez = true;
                     UltimaPos = Cubo.transform.position;
                 }
 
 
                 //Translacao
-                Cubo.transform.Translate(new Vector3(news[0] - olds[0], -news[1] + olds[1], -news[2] + olds[2]), Space.World);
+                Cubo.transform.Translate(new Vector3((newPositions[0] - oldPositions[0]) * config.x_inversor, (-newPositions[1] + oldPositions[1]) * config.y_inversor, (-newPositions[2] + oldPositions[2]) * config.z_inversor), Space.World);
 
-                if (Cubo.transform.position.z < -4 || Cubo.transform.position.z > 4)
-                {//Limite de posicao z
-                    Cubo.transform.position = UltimaPos;
-                }
-                else if (Cubo.transform.position.x < -4 || Cubo.transform.position.x > 4)
-                { //limite x
-                    Cubo.transform.position = UltimaPos;
-                }
-                else if (Cubo.transform.position.y < -2.5 || Cubo.transform.position.y > 2.5)
-                { //limite z
-                    Cubo.transform.position = UltimaPos;
-                }
+                LimitesCubo();//Limites  de translacao do cubo
 
                 //Rotacao 
-                Vector3 up = new Vector3(news[6], news[7], news[8]);
-                Vector3 forward = new Vector3(news[9], news[10], news[11]);
+                Vector3 up = new Vector3(newPositions[6], newPositions[7], newPositions[8]);
+                Vector3 forward = new Vector3(newPositions[9], newPositions[10], newPositions[11]);
                 Cubo.transform.localRotation = Quaternion.LookRotation(forward, up);
 
 
                 //Salva posicoes antigas
                 //Debug.Log(news[0]);
-                olds[0] = news[0];
-                olds[1] = news[1];
-                olds[2] = news[2];
+                oldPositions[0] = newPositions[0];
+                oldPositions[1] = newPositions[1];
+                oldPositions[2] = newPositions[2];
                 old_timestamp = new_timestamp;
                 UltimaPos = Cubo.transform.position;
             }
             else
-            {// == false
+            {//Caso o cubo nao esteja sendoreconhecido
                 Infos_debug.text = "Nao Conectado";
                 new_timestamp = json["timestamp"].ToString();
                 if (gravar && new_timestamp != old_timestamp)
@@ -211,9 +223,36 @@ public class SerialControle : MonoBehaviour
         {
             Debug.Log(e);
         }
-
     }
 
+    void LimitesCubo()
+    {
+        if (Cubo.transform.position.z < config.min_z || Cubo.transform.position.z > config.max_z)
+        {//Limite de posicao z
+            Cubo.transform.position = UltimaPos;
+        }
+        else if (Cubo.transform.position.x < config.min_x || Cubo.transform.position.x > config.max_x)
+        { //limite x
+            Cubo.transform.position = UltimaPos;
+        }
+        else if (Cubo.transform.position.y < config.min_y || Cubo.transform.position.y > config.max_y)
+        { //limite z
+            Cubo.transform.position = UltimaPos;
+        }
+    }
+    void SalvaDadosJson()
+    {
+        newPositions[0] = float.Parse(json["translation_x"].ToString()) / config.Sensibilidade;
+        newPositions[1] = float.Parse(json["translation_y"].ToString()) / config.Sensibilidade;
+        newPositions[2] = float.Parse(json["translation_z"].ToString()) / config.Sensibilidade;
+        newPositions[6] = float.Parse(json["rotation_up_x"].ToString());
+        newPositions[7] = float.Parse(json["rotation_up_y"].ToString());
+        newPositions[8] = float.Parse(json["rotation_up_z"].ToString());
+        newPositions[9] = float.Parse(json["rotation_forward_x"].ToString());
+        newPositions[10] = float.Parse(json["rotation_forward_y"].ToString());
+        newPositions[11] = float.Parse(json["rotation_forward_z"].ToString());
+        new_timestamp = json["timestamp"].ToString();
+    }
 
     void AnotaCSV(bool Detectando)
     {
@@ -234,7 +273,7 @@ public class SerialControle : MonoBehaviour
             }
         }
         else
-        { // AR tracking parou de enviar
+        { // AR tracking parou de enviar armazena so o tempo e o sucess
             for (int i = 0; i <= 2; i++)
             {
                 if (i < 2)
@@ -267,10 +306,11 @@ public class SerialControle : MonoBehaviour
         if (clientData != null)
         {
             clientData.Close();
-            if(gravou){
+            if (gravar)
+            {
                 FechaCSV();
             }
-            
+
         }
 
     }
@@ -278,7 +318,7 @@ public class SerialControle : MonoBehaviour
 }
 
 
-/*
+/* RETORNO do AR TRACKING
 {"timestamp": 1677594319.8186967, "success": true, "translation_x": 11.430583295477035, "translation_y": 5.142802280146702, "translation_z": 42.815210412740825, 
 "rotation_right_x": -0.9399653958653161, "rotation_right_y": 0.31731478045920997, "rotation_right_z": -0.12560407906546253, "rotation_up_x": -0.3016497091359976, 
 "rotation_up_y": -0.6003944856751889, "rotation_up_z": 0.7406307545254879, "rotation_forward_x": 0.15960108882438012, "rotation_forward_y": 0.7340557142839697, 

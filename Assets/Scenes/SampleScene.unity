@@ -382,13 +382,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ec21eba6b2b921d458da721d128fd2eb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  receiveBufferSize: 920000
-  showDebug: 1
-  Sensibilidade: 4
+  portData: 9000
+  receiveBufferSize: 120000
   Cubo: {fileID: 509726806}
-  gravar: 0
   rec: {fileID: 25736431}
   Infos_debug: {fileID: 1638775759}
+  config:
+    x_inversor: 1
+    y_inversor: 1
+    z_inversor: 1
+    Sensibilidade: 5
+    max_x: 4
+    min_x: -4
+    max_y: 2.5
+    min_y: -2.5
+    max_z: 4
+    min_z: -4
 --- !u!114 &509726812
 MonoBehaviour:
   m_ObjectHideFlags: 0
