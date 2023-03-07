@@ -59,7 +59,7 @@ public class SerialControle : MonoBehaviour
     [Header("Objetos")]
 
     public GameObject Cubo; // Objeto que sera movimentado
-    bool Movimentar = false; // Booleana para liberar o movimento do objeto
+    //bool Movimentar = false; // Booleana para liberar o movimento do objeto
     string new_timestamp, old_timestamp; //Variaveis que guardam o tempo enviado pelo ar tracking
 
 
@@ -124,14 +124,6 @@ public class SerialControle : MonoBehaviour
         byte[] receiveBytes = clientData.Receive(ref ipEndPointData);
         receivedString = Encoding.ASCII.GetString(receiveBytes);
         json = JObject.Parse(receivedString);
-        if (json["success"].ToString() == "True")
-        {
-            Movimentar = true;
-        }
-        else
-        {
-            Movimentar = false;
-        }
         clientData.BeginReceive(AC, obj);
 
 
@@ -167,7 +159,7 @@ public class SerialControle : MonoBehaviour
     {
         try // Movimenta Cubo
         {
-            if (Movimentar)
+            if (json["success"].ToString() == "True")
             {
                 Infos_debug.text = receivedString;
                 SalvaDadosJson();//Salva os dados recebidos
@@ -210,8 +202,13 @@ public class SerialControle : MonoBehaviour
             }
             else
             {//Caso o cubo nao esteja sendoreconhecido
-                Infos_debug.text = "Nao Conectado";
                 new_timestamp = json["timestamp"].ToString();
+                Infos_debug.text = "Nao Conectado " + new_timestamp;
+                /* TIMESPAN do sistema
+                TimeSpan tempo = System.DateTime.Now.Subtract(System.DateTime.UnixEpoch);
+                Debug.Log(tempo.TotalMilliseconds / 1000 + " aaaa");
+                Debug.Log(new_timestamp + " bbbb");
+                */
                 if (gravar && new_timestamp != old_timestamp)
                 {
                     AnotaCSV(false);
@@ -274,13 +271,9 @@ public class SerialControle : MonoBehaviour
         }
         else
         { // AR tracking parou de enviar armazena so o tempo e o sucess
-            for (int i = 0; i <= 2; i++)
+            for (int i = 0; i < 2; i++)
             {
-                if (i < 2)
-                {
-                    arquivo.Write(json[jtokens[i]].ToString().Replace(',', '.'));
-                }
-
+                arquivo.Write(json[jtokens[i]].ToString().Replace(',', '.'));
 
                 if (i <= 1)
                 {
@@ -310,7 +303,6 @@ public class SerialControle : MonoBehaviour
             {
                 FechaCSV();
             }
-
         }
 
     }
