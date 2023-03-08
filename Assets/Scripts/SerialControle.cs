@@ -130,7 +130,7 @@ public class SerialControle : MonoBehaviour
     }
 
 
-    private void FixedUpdate()
+    private void Update()
     {
         if (Input.GetKeyDown("r")) //Botao de comecar a gravar
         {
