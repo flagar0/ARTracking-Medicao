@@ -83,7 +83,7 @@ public class SerialControle : MonoBehaviour
     {
         try
         {
-            arquivo = new StreamWriter(Application.dataPath + "/Data/" + "coisas.csv");
+            arquivo = new StreamWriter(Application.dataPath + "/Data/" + "Medicao_AR.csv");
             for (int i = 0; i < jtokens.Length; i++)
             {
                 arquivo.Write(jtokens[i]);
@@ -167,7 +167,8 @@ public class SerialControle : MonoBehaviour
 
                 if (gravar && new_timestamp != old_timestamp) //Nao deixa repetir os valores no mesmo tempo
                 {
-                    AnotaCSV(true);
+                    AnotaCSV(true); //csv ar
+               
                 }
 
 
@@ -253,6 +254,7 @@ public class SerialControle : MonoBehaviour
 
     void AnotaCSV(bool Detectando)
     {
+         GameObject.Find("EventSystem").GetComponent<ListenerHap>().AnotaCSV(new_timestamp); //csv hap
 
         if (Detectando)
         {//Recebendo informacoes do AR Tracking
@@ -275,7 +277,7 @@ public class SerialControle : MonoBehaviour
             {
                 arquivo.Write(json[jtokens[i]].ToString().Replace(',', '.'));
 
-                if (i <= 1)
+                if (i ==0)
                 {
                     arquivo.Write(",");
                 }

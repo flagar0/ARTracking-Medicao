@@ -9,37 +9,38 @@ public class ListenerHap : MonoBehaviour
     Quaternion AnguloHaptico;
     private StreamWriter arquivo;
 
-    string[] header = {"position_x","position_y","position_z","rotation_x","rotation_y","rotation_z"};
-    string[] data={"0","0","0","0","0","0"};
+    string[] header = {"timestamp","position_x","position_y","position_z","rotation_x","rotation_y","rotation_z","rotation_w"};
+    string[] data={"0","0","0","0","0","0","0","0"};
 
     void Start(){
         CriaCSV();
     }
-    void FixedUpdate()
+    void Update()
     {
         PosicoesHaptico = this.GetComponent<HapticPlugin>().proxyPositionRaw;
         AnguloHaptico = this.GetComponent<HapticPlugin>().proxyOrientationRaw;
         SalvaDados();
-        AnotaCSV();
     }
 
     void SalvaDados(){
-        data[0]=PosicoesHaptico.x.ToString();
-        data[1]=PosicoesHaptico.y.ToString();
-        data[2]=PosicoesHaptico.z.ToString();
-        data[3]=AnguloHaptico.x.ToString();
-        data[4]=AnguloHaptico.y.ToString();
-        data[5]=AnguloHaptico.z.ToString();
+        data[1]=PosicoesHaptico.x.ToString();
+        data[2]=PosicoesHaptico.y.ToString();
+        data[3]=PosicoesHaptico.z.ToString();
+        data[4]=AnguloHaptico.x.ToString();
+        data[5]=AnguloHaptico.y.ToString();
+        data[6]=AnguloHaptico.z.ToString();
+        data[7]=AnguloHaptico.w.ToString();
     }
 
     void CriaCSV() //Cria o arquivo CSV aonde serao armazenados os dados
     {
         try
         {
-            arquivo = new StreamWriter(Application.dataPath + "/Data/" + "coisas.csv");
+            arquivo = new StreamWriter(Application.dataPath + "/Data/" + "Medicao_Haptico.csv");
             for (int i = 0; i < header.Length; i++)
             {
                 arquivo.Write(header[i]);
+                
                 if (i < header.Length - 1)
                 {
                     arquivo.Write(",");
@@ -57,17 +58,20 @@ public class ListenerHap : MonoBehaviour
 
         }
 }
-void AnotaCSV()
+public void AnotaCSV(string timestamp)
     {
-            for (int i = 0; i < 6; i++)
+            data[0] = timestamp;
+            for (int i = 0; i < header.Length; i++)
             {
                 arquivo.Write(data[i].ToString().Replace(',', '.'));
-                if (i < 5)
+                if (i < header.Length-1)
                 {
+                    
                     arquivo.Write(",");
                 }
                 else
                 {
+                    
                     arquivo.WriteLine();
                 }
             }
