@@ -617,7 +617,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: d7678dd9240c14b439c4d2e4df97184e, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -655,7 +655,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 571692764}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -25.725147, y: 24.097809, z: -27.62}
+  m_LocalPosition: {x: -0.16, y: 10.37, z: -16.28}
   m_LocalScale: {x: 3.1125, y: 3.1125, z: 3.1125}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -671,7 +671,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 571692764}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ec21eba6b2b921d458da721d128fd2eb, type: 3}
+  m_Script: {fileID: 11500000, guid: de8721cd7ccb45147bac029e18726792, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   portData: 9000
@@ -683,13 +683,13 @@ MonoBehaviour:
     x_inversor: 1
     y_inversor: 1
     z_inversor: 1
-    Sensibilidade: 1
-    max_x: -14
-    min_x: -40
-    max_y: 30
-    min_y: 18
-    max_z: -20
-    min_z: -34
+    Sensibilidade: 0.5
+    max_x: 100
+    min_x: -100
+    max_y: 40
+    min_y: -40
+    max_z: 100
+    min_z: -100
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0

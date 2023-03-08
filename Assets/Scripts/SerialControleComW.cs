@@ -9,7 +9,7 @@ using System.IO;
 using UnityEngine.UI;
 using System;
 
-public class SerialControle : MonoBehaviour
+public class SerialControleComW : MonoBehaviour
 {
 
 
@@ -41,7 +41,7 @@ public class SerialControle : MonoBehaviour
         public int z_inversor = 1;
         [Header("Ajustes")]
         [SerializeField]
-        public int Sensibilidade = 5;
+        public float Sensibilidade = 5f;
         [Header("Limites")]
         [SerializeField]
         public float max_x = 4;
@@ -65,9 +65,7 @@ public class SerialControle : MonoBehaviour
 
     Vector3 UltimaPos;
     StreamWriter arquivo;
-    string[] jtokens = {"timestamp","success","translation_x","translation_y","translation_z","rotation_right_x"
-    ,"rotation_right_y","rotation_right_z","rotation_up_x","rotation_up_y","rotation_up_z","rotation_forward_x"
-    ,"rotation_forward_y","rotation_forward_z"};
+    string[] jtokens = {"timestamp","success","translation_x","translation_y","translation_z","rotation_x","rotation_y","rotation_z","rotation_w"};
 
     bool gravar = false; //bool para comecar a gravar
     public GameObject rec; //UI que avisa se esta gravando
@@ -259,18 +257,25 @@ public class SerialControle : MonoBehaviour
 
         if (Detectando)
         {//Recebendo informacoes do AR Tracking
-            for (int i = 0; i < json.Count; i++)
-            {
-                arquivo.Write(json[jtokens[i]].ToString().Replace(',', '.'));
-                if (i < jtokens.Length - 1)
-                {
-                    arquivo.Write(",");
-                }
-                else
-                {
-                    arquivo.WriteLine();
-                }
-            }
+            
+                arquivo.Write(json[jtokens[0]].ToString().Replace(',', '.'));
+                arquivo.Write(",");
+                arquivo.Write(json[jtokens[1]].ToString().Replace(',', '.'));
+                arquivo.Write(",");
+                arquivo.Write(json[jtokens[2]].ToString().Replace(',', '.'));
+                arquivo.Write(",");
+                arquivo.Write(json[jtokens[3]].ToString().Replace(',', '.'));
+                arquivo.Write(",");
+                arquivo.Write(json[jtokens[4]].ToString().Replace(',', '.'));
+                arquivo.Write(",");
+                arquivo.Write(Cubo.transform.localRotation.x.ToString().Replace(',', '.'));
+                arquivo.Write(",");
+                arquivo.Write(Cubo.transform.localRotation.y.ToString().Replace(',', '.'));
+                arquivo.Write(",");
+                arquivo.Write(Cubo.transform.localRotation.z.ToString().Replace(',', '.'));
+                arquivo.Write(",");
+                arquivo.Write(Cubo.transform.localRotation.w.ToString().Replace(',', '.'));
+                arquivo.WriteLine();
         }
         else
         { // AR tracking parou de enviar armazena so o tempo e o sucess
