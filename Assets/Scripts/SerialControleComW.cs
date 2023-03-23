@@ -81,7 +81,7 @@ public class SerialControleComW : MonoBehaviour
     {
         try
         {
-            arquivo = new StreamWriter(Application.dataPath + "/Data/" + "Medicao_AR.csv");
+            arquivo = new StreamWriter(Application.dataPath + "/Data/" + "Medicao_AR"+System.DateTime.Now.Minute.ToString()+"-"+System.DateTime.Now.Second.ToString()+".csv");
             for (int i = 0; i < jtokens.Length; i++)
             {
                 arquivo.Write(jtokens[i]);
@@ -179,7 +179,7 @@ public class SerialControleComW : MonoBehaviour
                 //Translacao
                 Cubo.transform.Translate(new Vector3((newPositions[0] - oldPositions[0]) * config.x_inversor, (-newPositions[1] + oldPositions[1]) * config.y_inversor, (-newPositions[2] + oldPositions[2]) * config.z_inversor), Space.World);
 
-                LimitesCubo();//Limites  de translacao do cubo
+                //LimitesCubo();//Limites  de translacao do cubo
 
                 //Rotacao 
                 Vector3 up = new Vector3(newPositions[6], newPositions[7], newPositions[8]);
@@ -218,7 +218,7 @@ public class SerialControleComW : MonoBehaviour
         }
         catch (System.Exception e)
         {
-            Debug.Log(e);
+            //Debug.Log(e);
         }
     }
 
