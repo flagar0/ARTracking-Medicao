@@ -24,26 +24,26 @@ public class SerialControleComW : MonoBehaviour
     private System.AsyncCallback AC;
     byte[] receivedBytes;
     ////////////////////////////////////////////
-    float[] oldPositions = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };//x ,y, z - right - up - forward
-    float[] newPositions = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };//x ,y, z- right - up - forward
-    JObject json;
-    bool uma_vez = false; //Saber quando o programa rodar na primeira vez
+    float[] oldPositions = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };//[0-2]x ,y, z - [3-5]right - [6-8]up - [9-11]forward
+    float[] newPositions = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };///[0-2]x ,y, z - [3-5]right - [6-8]up - [9-11]forward
+    JObject json;//Json aonde ficara salvo os valores vindos do AR - Tracking
+    bool uma_vez = false; // Booleana para quando o programa rodar a primeira vez
 
     [Serializable]
     public class Configuracoes
     {
         [Header("Inverter Direcao")]
         [Range(-1, 1)]
-        public int x_inversor = 1;
+        public int x_inversor = 1;//Inverter direcao que o obj anda na direcao x
         [Range(-1, 1)]
-        public int y_inversor = 1;
+        public int y_inversor = 1;//Inverter direcao que o obj anda na direcao y
         [Range(-1, 1)]
-        public int z_inversor = 1;
+        public int z_inversor = 1; //Inverter direcao que o obj anda na direcao z
         [Header("Ajustes")]
         [SerializeField]
-        public float Sensibilidade = 5f;
+        public float Sensibilidade = 5f;//Sensibilidade da translação
         [Header("Limites")]
-        [SerializeField]
+        [SerializeField]//Limites de ate onde o obj pode andar
         public float max_x = 4;
         public float min_x = -4;
         public float max_y = 2.5f;
@@ -63,9 +63,9 @@ public class SerialControleComW : MonoBehaviour
     string new_timestamp, old_timestamp; //Variaveis que guardam o tempo enviado pelo ar tracking
 
 
-    Vector3 UltimaPos;
-    StreamWriter arquivo;
-    string[] jtokens = {"timestamp","success","translation_x","translation_y","translation_z","rotation_x","rotation_y","rotation_z","rotation_w"};
+    Vector3 UltimaPos;//Vetor que guarda a ultima posicao do objeto
+    StreamWriter arquivo; //Arquivo que serao  armazenados os dados
+    string[] jtokens = {"timestamp","success","translation_x","translation_y","translation_z","rotation_x","rotation_y","rotation_z","rotation_w"};//cabecalho do ar track
 
     bool gravar = false; //bool para comecar a gravar
     public GameObject rec; //UI que avisa se esta gravando
@@ -121,10 +121,8 @@ public class SerialControleComW : MonoBehaviour
         receivedBytes = clientData.EndReceive(result, ref ipEndPointData);
         byte[] receiveBytes = clientData.Receive(ref ipEndPointData);
         receivedString = Encoding.ASCII.GetString(receiveBytes);
-        json = JObject.Parse(receivedString);
+        json = JObject.Parse(receivedString);//Salva os dados recebidos do AR no json
         clientData.BeginReceive(AC, obj);
-
-
     }
 
 
@@ -239,12 +237,17 @@ public class SerialControleComW : MonoBehaviour
     }
     void SalvaDadosJson()
     {
+		//Definição dos novos valores de translação
         newPositions[0] = float.Parse(json["translation_x"].ToString()) / config.Sensibilidade;
         newPositions[1] = float.Parse(json["translation_y"].ToString()) / config.Sensibilidade;
         newPositions[2] = float.Parse(json["translation_z"].ToString()) / config.Sensibilidade;
+		
+		//Definição dos novos valores de rotação (up)
         newPositions[6] = float.Parse(json["rotation_up_x"].ToString());
         newPositions[7] = float.Parse(json["rotation_up_y"].ToString());
         newPositions[8] = float.Parse(json["rotation_up_z"].ToString());
+		
+		//Definição dos novos valores de rotação (forward)
         newPositions[9] = float.Parse(json["rotation_forward_x"].ToString());
         newPositions[10] = float.Parse(json["rotation_forward_y"].ToString());
         newPositions[11] = float.Parse(json["rotation_forward_z"].ToString());
@@ -302,7 +305,7 @@ public class SerialControleComW : MonoBehaviour
         arquivo.Close();
         Debug.Log("Salvo com sucesso");
     }
-    void OnDestroy()
+    void OnDestroy()//Desliga a leitura do ar tracking quando o jogo fecha
     {
         if (clientData != null)
         {
