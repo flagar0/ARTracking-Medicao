@@ -36,14 +36,14 @@ public class ListenerHap : MonoBehaviour
     {
         try
         {
-            arquivo = new StreamWriter(Application.dataPath + "/Data/" + "Medicao_Haptico"+System.DateTime.Now.Minute.ToString()+"-"+System.DateTime.Now.Second.ToString()+".csv");
+            arquivo = new StreamWriter(Application.dataPath + "/Data/" + "Medicao_Haptico-"+System.DateTime.Now.Hour.ToString()+"-"+System.DateTime.Now.Minute.ToString()+"-"+System.DateTime.Now.Second.ToString()+".csv");
             for (int i = 0; i < header.Length; i++)
             {
                 arquivo.Write(header[i]);
                 
                 if (i < header.Length - 1)
                 {
-                    arquivo.Write(",");
+                    arquivo.Write(";");
                 }
                 else
                 {
@@ -63,11 +63,11 @@ public void AnotaCSV(string timestamp)
             data[0] = timestamp;
             for (int i = 0; i < header.Length; i++)
             {
-                arquivo.Write(data[i].ToString().Replace(',', '.'));
+                arquivo.Write(data[i].ToString());
                 if (i < header.Length-1)
                 {
                     
-                    arquivo.Write(",");
+                    arquivo.Write(";");
                 }
                 else
                 {

@@ -81,13 +81,13 @@ public class SerialControleComW : MonoBehaviour
     {
         try
         {
-            arquivo = new StreamWriter(Application.dataPath + "/Data/" + "Medicao_AR"+System.DateTime.Now.Minute.ToString()+"-"+System.DateTime.Now.Second.ToString()+".csv");
+            arquivo = new StreamWriter(Application.dataPath + "/Data/" + "Medicao_AR-"+System.DateTime.Now.Hour.ToString()+"-"+System.DateTime.Now.Minute.ToString()+"-"+System.DateTime.Now.Second.ToString()+".csv");
             for (int i = 0; i < jtokens.Length; i++)
             {
                 arquivo.Write(jtokens[i]);
                 if (i < jtokens.Length - 1)
                 {
-                    arquivo.Write(",");
+                    arquivo.Write(";");
                 }
                 else
                 {
@@ -261,34 +261,34 @@ public class SerialControleComW : MonoBehaviour
         if (Detectando)
         {//Recebendo informacoes do AR Tracking
             
-                arquivo.Write(json[jtokens[0]].ToString().Replace(',', '.'));
-                arquivo.Write(",");
-                arquivo.Write(json[jtokens[1]].ToString().Replace(',', '.'));
-                arquivo.Write(",");
-                arquivo.Write(json[jtokens[2]].ToString().Replace(',', '.'));
-                arquivo.Write(",");
-                arquivo.Write(json[jtokens[3]].ToString().Replace(',', '.'));
-                arquivo.Write(",");
-                arquivo.Write(json[jtokens[4]].ToString().Replace(',', '.'));
-                arquivo.Write(",");
-                arquivo.Write(Cubo.transform.localRotation.x.ToString().Replace(',', '.'));
-                arquivo.Write(",");
-                arquivo.Write(Cubo.transform.localRotation.y.ToString().Replace(',', '.'));
-                arquivo.Write(",");
-                arquivo.Write(Cubo.transform.localRotation.z.ToString().Replace(',', '.'));
-                arquivo.Write(",");
-                arquivo.Write(Cubo.transform.localRotation.w.ToString().Replace(',', '.'));
+                arquivo.Write(json[jtokens[0]].ToString());
+                arquivo.Write(";");
+                arquivo.Write(json[jtokens[1]].ToString());
+                arquivo.Write(";");
+                arquivo.Write(json[jtokens[2]].ToString());
+                arquivo.Write(";");
+                arquivo.Write(json[jtokens[3]].ToString());
+                arquivo.Write(";");
+                arquivo.Write(json[jtokens[4]].ToString());
+                arquivo.Write(";");
+                arquivo.Write(Cubo.transform.localRotation.x.ToString());
+                arquivo.Write(";");
+                arquivo.Write(Cubo.transform.localRotation.y.ToString());
+                arquivo.Write(";");
+                arquivo.Write(Cubo.transform.localRotation.z.ToString());
+                arquivo.Write(";");
+                arquivo.Write(Cubo.transform.localRotation.w.ToString());
                 arquivo.WriteLine();
         }
         else
         { // AR tracking parou de enviar armazena so o tempo e o sucess
             for (int i = 0; i < 2; i++)
             {
-                arquivo.Write(json[jtokens[i]].ToString().Replace(',', '.'));
+                arquivo.Write(json[jtokens[i]].ToString());
 
                 if (i ==0)
                 {
-                    arquivo.Write(",");
+                    arquivo.Write(";");
                 }
                 else
                 {
