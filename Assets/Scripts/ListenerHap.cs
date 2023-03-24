@@ -36,7 +36,7 @@ public class ListenerHap : MonoBehaviour
     {
         try
         {
-            arquivo = new StreamWriter(Application.dataPath + "/Data/" + "Medicao_Haptico.csv");
+            arquivo = new StreamWriter(Application.dataPath + "/Data/" + "Medicao_Haptico"+System.DateTime.Now.Minute.ToString()+"-"+System.DateTime.Now.Second.ToString()+".csv");
             for (int i = 0; i < header.Length; i++)
             {
                 arquivo.Write(header[i]);
@@ -54,7 +54,7 @@ public class ListenerHap : MonoBehaviour
         }
         catch (System.Exception e)
         {
-            Debug.Log(e);
+           // Debug.Log(e);
 
         }
 }
@@ -79,7 +79,7 @@ public void AnotaCSV(string timestamp)
         }
     void FechaCSV()
     {
-        arquivo.Flush();
+        
         arquivo.Close();
         Debug.Log("Salvo com sucesso");
     }
