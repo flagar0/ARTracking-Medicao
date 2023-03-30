@@ -36,7 +36,12 @@ public class ListenerHap : MonoBehaviour
     {
         try
         {
-            arquivo = new StreamWriter(Application.dataPath + "/Data/" + "Medicao_Haptico-"+System.DateTime.Now.Hour.ToString()+"-"+System.DateTime.Now.Minute.ToString()+"-"+System.DateTime.Now.Second.ToString()+".csv");
+            try{
+                arquivo = new StreamWriter(Application.dataPath + "/Data/" +System.DateTime.Now.Hour.ToString()+"-"+System.DateTime.Now.Minute.ToString()+"-"+System.DateTime.Now.Second.ToString()+"/"+"Medicao_HAP.csv");
+            }catch(System.Exception){
+            Directory.CreateDirectory(Application.dataPath + "/Data/" +System.DateTime.Now.Hour.ToString()+"-"+System.DateTime.Now.Minute.ToString()+"-"+System.DateTime.Now.Second.ToString()+"/"); 
+            arquivo = new StreamWriter(Application.dataPath + "/Data/" +System.DateTime.Now.Hour.ToString()+"-"+System.DateTime.Now.Minute.ToString()+"-"+System.DateTime.Now.Second.ToString()+"/"+"Medicao_HAP.csv");
+            }
             for (int i = 0; i < header.Length; i++)
             {
                 arquivo.Write(header[i]);
