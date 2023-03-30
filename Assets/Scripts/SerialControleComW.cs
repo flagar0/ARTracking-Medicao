@@ -76,12 +76,14 @@ public class SerialControleComW : MonoBehaviour
     void Start()
     {
         ConectarUDP();
+        CriaCSV();
     }
     void CriaCSV() //Cria o arquivo CSV aonde serao armazenados os dados
     {
         try
         {
-            arquivo = new StreamWriter(Application.dataPath + "/Data/" + "Medicao_AR-"+System.DateTime.Now.Hour.ToString()+"-"+System.DateTime.Now.Minute.ToString()+"-"+System.DateTime.Now.Second.ToString()+".csv");
+            Directory.CreateDirectory(Application.dataPath + "/Data/" +System.DateTime.Now.Hour.ToString()+"-"+System.DateTime.Now.Minute.ToString()+"-"+System.DateTime.Now.Second.ToString()+"/"); 
+            arquivo = new StreamWriter(Application.dataPath + "/Data/" +System.DateTime.Now.Hour.ToString()+"-"+System.DateTime.Now.Minute.ToString()+"-"+System.DateTime.Now.Second.ToString()+"/"+"Medicao_AR.csv");
             for (int i = 0; i < jtokens.Length; i++)
             {
                 arquivo.Write(jtokens[i]);
@@ -135,7 +137,6 @@ public class SerialControleComW : MonoBehaviour
                 gravar = true;
 
                 rec.SetActive(true);
-                CriaCSV();
             }
             else
             {
@@ -175,8 +176,8 @@ public class SerialControleComW : MonoBehaviour
 
 
                 //Translacao
-                Cubo.transform.Translate(new Vector3((newPositions[0] - oldPositions[0]) * config.x_inversor, (-newPositions[1] + oldPositions[1]) * config.y_inversor, (-newPositions[2] + oldPositions[2]) * config.z_inversor), Space.World);
-
+                //Cubo.transform.Translate(new Vector3((newPositions[0] - oldPositions[0]) * config.x_inversor, (-newPositions[1] + oldPositions[1]) * config.y_inversor, (-newPositions[2] + oldPositions[2]) * config.z_inversor), Space.World);
+                Cubo.transform.position=new Vector3(newPositions[0]* config.x_inversor,newPositions[1]* config.y_inversor,newPositions[2]* config.z_inversor);
                 //LimitesCubo();//Limites  de translacao do cubo
 
                 //Rotacao 
@@ -201,6 +202,7 @@ public class SerialControleComW : MonoBehaviour
             else
             {//Caso o cubo nao esteja sendoreconhecido
                 new_timestamp = json["timestamp"].ToString();
+                uma_vez=false;
                 Infos_debug.text = "Nao Conectado " + new_timestamp;
                 /* TIMESPAN do sistema
                 TimeSpan tempo = System.DateTime.Now.Subtract(System.DateTime.UnixEpoch);
@@ -216,7 +218,7 @@ public class SerialControleComW : MonoBehaviour
         }
         catch (System.Exception e)
         {
-            //Debug.Log(e);
+            Debug.Log(e);
         }
     }
 
@@ -240,7 +242,7 @@ public class SerialControleComW : MonoBehaviour
 		//Definição dos novos valores de translação
         newPositions[0] = float.Parse(json["translation_x"].ToString()) / config.Sensibilidade;
         newPositions[1] = float.Parse(json["translation_y"].ToString()) / config.Sensibilidade;
-        newPositions[2] = float.Parse(json["translation_z"].ToString()) / config.Sensibilidade;
+        newPositions[2] = float.Parse(json["translation_z"].ToString()); /// config.Sensibilidade;
 		
 		//Definição dos novos valores de rotação (up)
         newPositions[6] = float.Parse(json["rotation_up_x"].ToString());
@@ -256,12 +258,12 @@ public class SerialControleComW : MonoBehaviour
 
     void AnotaCSV(bool Detectando)
     {
-         GameObject.Find("EventSystem").GetComponent<ListenerHap>().AnotaCSV(new_timestamp); //csv hap
+        GameObject.Find("EventSystem").GetComponent<ListenerHap>().AnotaCSV(ConversorTempo((double)json[jtokens[0]]).ToString("HH:mm:ss.fff")); //csv hap
 
         if (Detectando)
         {//Recebendo informacoes do AR Tracking
             
-                arquivo.Write(json[jtokens[0]].ToString());
+                arquivo.Write(ConversorTempo((double)json[jtokens[0]]).ToString("HH:mm:ss.fff"));
                 arquivo.Write(";");
                 arquivo.Write(json[jtokens[1]].ToString());
                 arquivo.Write(";");
@@ -284,14 +286,16 @@ public class SerialControleComW : MonoBehaviour
         { // AR tracking parou de enviar armazena so o tempo e o sucess
             for (int i = 0; i < 2; i++)
             {
-                arquivo.Write(json[jtokens[i]].ToString());
+                
 
                 if (i ==0)
-                {
+                { 
+                    arquivo.Write(ConversorTempo((double)json[jtokens[i]]).ToString("HH:mm:ss.fff"));
                     arquivo.Write(";");
                 }
                 else
                 {
+                    arquivo.Write(json[jtokens[i]].ToString());
                     arquivo.WriteLine();
                 }
             }
@@ -317,6 +321,14 @@ public class SerialControleComW : MonoBehaviour
         }
 
     }
+
+    public static DateTime ConversorTempo( double unixTimeStamp )
+{
+    // Unix timestamp is seconds past epoch
+    DateTime dateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+    dateTime = dateTime.AddSeconds( unixTimeStamp ).ToLocalTime();
+    return dateTime;
+}
 
 }
 
