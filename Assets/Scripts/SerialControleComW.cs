@@ -71,12 +71,14 @@ public class SerialControleComW : MonoBehaviour
     public GameObject rec; //UI que avisa se esta gravando
     public Text Infos_debug; //Texto que mostra os dados recebidos do ar tracking
     string receivedString;
+    public bool DeadReckoing;
 
     public Configuracoes config;
     void Start()
     {
         ConectarUDP();
         CriaCSV();
+        GameObject.Find("dead").GetComponent<Text>().text= DeadReckoing.ToString();
     }
     void CriaCSV() //Cria o arquivo CSV aonde serao armazenados os dados
     {
@@ -175,15 +177,22 @@ public class SerialControleComW : MonoBehaviour
                 }
 
 
-                //Translacao
-                //Cubo.transform.Translate(new Vector3((newPositions[0] - oldPositions[0]) * config.x_inversor, (-newPositions[1] + oldPositions[1]) * config.y_inversor, (-newPositions[2] + oldPositions[2]) * config.z_inversor), Space.World);
-                Cubo.transform.position=new Vector3(newPositions[0]* config.x_inversor,newPositions[1]* config.y_inversor,newPositions[2]* config.z_inversor);
+                if(DeadReckoing){
+                    Transladar();
+                    Rotacionar(false);
+                }else{
+                Cubo.transform.Translate(new Vector3((newPositions[0] - oldPositions[0]) * config.x_inversor, (-newPositions[1] + oldPositions[1]) * config.y_inversor, (-newPositions[2] + oldPositions[2]) * config.z_inversor), Space.World);
+                //Cubo.transform.position=new Vector3(newPositions[0]* config.x_inversor,newPositions[1]* config.y_inversor,newPositions[2]* config.z_inversor);
                 //LimitesCubo();//Limites  de translacao do cubo
 
                 //Rotacao 
                 Vector3 up = new Vector3(newPositions[6], newPositions[7], newPositions[8]);
                 Vector3 forward = new Vector3(newPositions[9], newPositions[10], newPositions[11]);
                 Cubo.transform.localRotation = Quaternion.LookRotation(forward, up);
+                }    
+
+                //Translacao
+                
 
                 if (gravar && new_timestamp != old_timestamp) //Nao deixa repetir os valores no mesmo tempo
                 {
@@ -222,6 +231,48 @@ public class SerialControleComW : MonoBehaviour
         }
     }
 
+void Rotacionar(bool first)
+    {
+
+        float rot_min = 0.8f;
+        float rot_max = 500f;
+        Vector3 up = new Vector3(newPositions[6], newPositions[7], newPositions[8]);
+        Vector3 forward = new Vector3(newPositions[9], newPositions[10], newPositions[11]);
+
+        var variacao = Vector3.Distance(Cubo.transform.localRotation.eulerAngles, Quaternion.LookRotation(forward, up).eulerAngles);
+
+        //Debug.Log("ROT:"+variacao);
+        if (first)
+        {//primeira  vez
+            Cubo.transform.localRotation = Quaternion.LookRotation(forward, up);
+        }
+        else if (variacao > rot_min && variacao < rot_max)
+        {
+
+            Cubo.transform.localRotation = Quaternion.LookRotation(forward, up);
+            //Cubo.transform.localRotation = Quaternion.LookRotation(up, forward);
+        }
+
+
+    }
+
+    void Transladar()
+    {
+        float Dis_min = 0.1f;
+        float Dis_max = 1f ;
+
+        Vector3 NextMov = new Vector3((newPositions[0] - oldPositions[0]) * config.x_inversor, (-newPositions[1] + oldPositions[1]) * config.y_inversor, (-newPositions[2] + oldPositions[2]) * config.z_inversor);
+
+        Vector3 NewCubo = Cubo.transform.position + NextMov;
+        var distancia = Vector3.Distance(Cubo.transform.position, NewCubo);
+        //Debug.Log("Trans:"+distancia);
+        //Debug.Log(Cubo.transform.forward);
+        if (distancia > Dis_min && distancia <= Dis_max)
+        {
+            Cubo.transform.Translate(NextMov, Space.World);
+        }
+
+    }
     void LimitesCubo()
     {
         if (Cubo.transform.position.z < config.min_z || Cubo.transform.position.z > config.max_z)
@@ -242,7 +293,7 @@ public class SerialControleComW : MonoBehaviour
 		//Definição dos novos valores de translação
         newPositions[0] = float.Parse(json["translation_x"].ToString()) / config.Sensibilidade;
         newPositions[1] = float.Parse(json["translation_y"].ToString()) / config.Sensibilidade;
-        newPositions[2] = float.Parse(json["translation_z"].ToString()); /// config.Sensibilidade;
+        newPositions[2] = float.Parse(json["translation_z"].ToString()) / config.Sensibilidade;
 		
 		//Definição dos novos valores de rotação (up)
         newPositions[6] = float.Parse(json["rotation_up_x"].ToString());
@@ -258,8 +309,9 @@ public class SerialControleComW : MonoBehaviour
 
     void AnotaCSV(bool Detectando)
     {
-        GameObject.Find("EventSystem").GetComponent<ListenerHap>().AnotaCSV(ConversorTempo((double)json[jtokens[0]]).ToString("HH:mm:ss.fff")); //csv hap
+        GameObject.Find("EventSystem").GetComponent<AnotaPos>().AnotaCSV(ConversorTempo((double)json[jtokens[0]]).ToString("HH:mm:ss.fff")); //csv hap
 
+        /*
         if (Detectando)
         {//Recebendo informacoes do AR Tracking
             
@@ -300,6 +352,7 @@ public class SerialControleComW : MonoBehaviour
                 }
             }
         }
+        */
     }
 
 
