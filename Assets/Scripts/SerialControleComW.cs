@@ -181,8 +181,8 @@ public class SerialControleComW : MonoBehaviour
                     Transladar();
                     Rotacionar(false);
                 }else{
-                Cubo.transform.Translate(new Vector3((newPositions[0] - oldPositions[0]) * config.x_inversor, (-newPositions[1] + oldPositions[1]) * config.y_inversor, (-newPositions[2] + oldPositions[2]) * config.z_inversor), Space.World);
-                //Cubo.transform.position=new Vector3(newPositions[0]* config.x_inversor,newPositions[1]* config.y_inversor,newPositions[2]* config.z_inversor);
+                //Cubo.transform.Translate(new Vector3((newPositions[0] - oldPositions[0]) * config.x_inversor, (-newPositions[1] + oldPositions[1]) * config.y_inversor, (-newPositions[2] + oldPositions[2]) * config.z_inversor), Space.World);
+                Cubo.transform.position=new Vector3(newPositions[0]* config.x_inversor,newPositions[1]* config.y_inversor,(newPositions[2]* config.z_inversor)-72f);
                 //LimitesCubo();//Limites  de translacao do cubo
 
                 //Rotacao 
@@ -265,11 +265,16 @@ void Rotacionar(bool first)
 
         Vector3 NewCubo = Cubo.transform.position + NextMov;
         var distancia = Vector3.Distance(Cubo.transform.position, NewCubo);
-        //Debug.Log("Trans:"+distancia);
+        if(distancia!=0){
+            Debug.Log("Trans:"+distancia.ToString());
+        }
+        
         //Debug.Log(Cubo.transform.forward);
-        if (distancia > Dis_min && distancia <= Dis_max)
+        if (distancia >= Dis_min && distancia <= Dis_max)
         {
             Cubo.transform.Translate(NextMov, Space.World);
+            Debug.Log("Andou com: "+distancia.ToString());
+            //Cubo.transform.position=new Vector3(newPositions[0]* config.x_inversor,newPositions[1]* config.y_inversor,(newPositions[2]* config.z_inversor)-72f);
         }
 
     }
