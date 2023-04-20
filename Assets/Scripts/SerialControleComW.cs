@@ -72,6 +72,7 @@ public class SerialControleComW : MonoBehaviour
     public Text Infos_debug; //Texto que mostra os dados recebidos do ar tracking
     string receivedString;
     public bool DeadReckoing;
+    List<Vector3> lastPosition = new List<Vector3>(60);
 
     public Configuracoes config;
     void Start()
@@ -181,8 +182,10 @@ public class SerialControleComW : MonoBehaviour
                     Transladar();
                     Rotacionar(false);
                 }else{
-                //Cubo.transform.Translate(new Vector3((newPositions[0] - oldPositions[0]) * config.x_inversor, (-newPositions[1] + oldPositions[1]) * config.y_inversor, (-newPositions[2] + oldPositions[2]) * config.z_inversor), Space.World);
-                Cubo.transform.position=new Vector3(newPositions[0]* config.x_inversor,newPositions[1]* config.y_inversor,(newPositions[2]* config.z_inversor)-72f);
+                
+            
+                Cubo.transform.Translate(new Vector3((newPositions[0] - oldPositions[0]) * config.x_inversor, (-newPositions[1] + oldPositions[1]) * config.y_inversor, (-newPositions[2] + oldPositions[2]) * config.z_inversor), Space.World);
+                //Cubo.transform.position=new Vector3(newPositions[0]* config.x_inversor,newPositions[1]* config.y_inversor,(newPositions[2]* config.z_inversor)-72f);
                 //LimitesCubo();//Limites  de translacao do cubo
 
                 //Rotacao 
@@ -202,6 +205,7 @@ public class SerialControleComW : MonoBehaviour
 
                 //Salva posicoes antigas
                 //Debug.Log(news[0]);
+                
                 oldPositions[0] = newPositions[0];
                 oldPositions[1] = newPositions[1];
                 oldPositions[2] = newPositions[2];
@@ -266,15 +270,19 @@ void Rotacionar(bool first)
         Vector3 NewCubo = Cubo.transform.position + NextMov;
         var distancia = Vector3.Distance(Cubo.transform.position, NewCubo);
         if(distancia!=0){
-            Debug.Log("Trans:"+distancia.ToString());
+            //Debug.Log("Trans:"+distancia.ToString());
         }
         
         //Debug.Log(Cubo.transform.forward);
         if (distancia >= Dis_min && distancia <= Dis_max)
         {
             Cubo.transform.Translate(NextMov, Space.World);
-            Debug.Log("Andou com: "+distancia.ToString());
+            Debug.Log("X: "+meanPositions(lastPosition,"x")+" Y: "+meanPositions(lastPosition,"y")+" Z: "+meanPositions(lastPosition,"z"));
+            AddPositionsInList(new Vector3(newPositions[0],newPositions[1],newPositions[2]));
             //Cubo.transform.position=new Vector3(newPositions[0]* config.x_inversor,newPositions[1]* config.y_inversor,(newPositions[2]* config.z_inversor)-72f);
+        }else{
+            Cubo.transform.Translate(new Vector3(meanPositions(lastPosition,"x"),meanPositions(lastPosition,"y"),meanPositions(lastPosition,"z")), Space.World);
+            //AddPositionsInList(lastPosition[lastPosition.Count]);
         }
 
     }
@@ -388,6 +396,63 @@ void Rotacionar(bool first)
     return dateTime;
 }
 
+///<summary>Classe <c>meanPositions</c> retorna a média das distancias entre cada posicao armazenada
+    ///</summary>
+    private float meanPositions(List<Vector3> positions,string tipo) {//x,y,z,distancia
+        if (positions.Count < 1) return 0;
+        float mean=0;
+        float sum = 0;
+        switch(tipo){
+            case "x":
+            for(int i=0;i<positions.Count-1;i++) {// de 0 a te 58 medindo a distancia entre um e o proximo a ele
+            var distance = positions[i].x-positions[i+1].x;
+            sum += distance;
+        }
+
+        mean = sum / (positions.Count-1);
+            break;
+            case "y":
+            for(int i=0;i<positions.Count-1;i++) {// de 0 a te 58 medindo a distancia entre um e o proximo a ele
+            var distance = positions[i].y-positions[i+1].y;
+            sum += distance;
+        }
+
+        mean = sum / (positions.Count-1);
+            break;
+            case "z":
+            for(int i=0;i<positions.Count-1;i++) {// de 0 a te 58 medindo a distancia entre um e o proximo a ele
+            var distance = positions[i].z-positions[i+1].z;
+            sum += distance;
+        }
+
+        mean = sum / (positions.Count-1);
+        
+            break;
+            case "distancia":
+            for(int i=0;i<positions.Count-1;i++) {// de 0 a te 58 medindo a distancia entre um e o proximo a ele
+            var distance = Vector3.Distance(positions[i],positions[i+1]);
+            sum += distance;
+        }
+
+        mean = sum / (positions.Count-1);
+            break;
+        }
+
+        return mean;
+    }
+
+
+///<summary>Classe <c>AddPositionsInList</c> guarda os valores de rotação atuais em listas correspondentes.
+    ///</summary>
+    private void AddPositionsInList(Vector3 vetor) {
+        // Se já tem mais de 60 frames guardados,
+        // apaga o mais antigo, de index 0
+        if (lastPosition.Count >= 60) {
+            lastPosition.RemoveAt(0);
+        }
+
+        lastPosition.Add(vetor);
+    }
 }
 
 

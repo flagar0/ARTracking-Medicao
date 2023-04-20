@@ -1986,10 +1986,10 @@ MonoBehaviour:
   Infos_debug: {fileID: 1638775759}
   DeadReckoing: 1
   config:
-    x_inversor: 1
+    x_inversor: -1
     y_inversor: 1
-    z_inversor: -1
-    Sensibilidade: 1
+    z_inversor: 1
+    Sensibilidade: 3
     max_x: 100
     min_x: -100
     max_y: 40
