@@ -1984,11 +1984,11 @@ MonoBehaviour:
   Cubo: {fileID: 2018195082}
   rec: {fileID: 25736431}
   Infos_debug: {fileID: 1638775759}
-  DeadReckoing: 1
+  DeadReckoing: 0
   config:
-    x_inversor: -1
+    x_inversor: 1
     y_inversor: 1
-    z_inversor: 1
+    z_inversor: -1
     Sensibilidade: 3
     max_x: 100
     min_x: -100
