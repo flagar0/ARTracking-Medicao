@@ -262,7 +262,7 @@ void Rotacionar(bool first)
 
     void Transladar()
     {
-        float Dis_min = 0.1f;
+        float Dis_min = 0.05f;
         float Dis_max = 1f ;
 
         Vector3 NextMov = new Vector3((newPositions[0] - oldPositions[0]) * config.x_inversor, (-newPositions[1] + oldPositions[1]) * config.y_inversor, (-newPositions[2] + oldPositions[2]) * config.z_inversor);
@@ -280,7 +280,7 @@ void Rotacionar(bool first)
             Debug.Log("X: "+meanPositions(lastPosition,"x")+" Y: "+meanPositions(lastPosition,"y")+" Z: "+meanPositions(lastPosition,"z"));
             AddPositionsInList(new Vector3(newPositions[0],newPositions[1],newPositions[2]));
             //Cubo.transform.position=new Vector3(newPositions[0]* config.x_inversor,newPositions[1]* config.y_inversor,(newPositions[2]* config.z_inversor)-72f);
-        }else{
+        }else if(distancia > Dis_max){
             Cubo.transform.Translate(new Vector3(meanPositions(lastPosition,"x"),meanPositions(lastPosition,"y"),meanPositions(lastPosition,"z")), Space.World);
             //AddPositionsInList(lastPosition[lastPosition.Count]);
         }
