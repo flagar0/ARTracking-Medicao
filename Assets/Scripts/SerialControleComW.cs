@@ -164,10 +164,6 @@ public class SerialControleComW : MonoBehaviour
                 Infos_debug.text = receivedString;
                 SalvaDadosJson();//Salva os dados recebidos
 
-
-                
-
-
                 if (uma_vez == false) // executa uma vez para o cubo nao ir longe
                 {
                     oldPositions[0] = newPositions[0];
@@ -197,11 +193,12 @@ public class SerialControleComW : MonoBehaviour
                 //Translacao
                 
 
-                if (gravar && new_timestamp != old_timestamp) //Nao deixa repetir os valores no mesmo tempo
-                {
-                    AnotaCSV(true); //csv ar
-               
-                }
+                // if (gravar && new_timestamp != old_timestamp) //Nao deixa repetir os valores no mesmo tempo
+                // {
+                //     AnotaCSV(true); //csv ar
+                // }
+
+                AnotaCSV(true);
 
                 //Salva posicoes antigas
                 //Debug.Log(news[0]);
@@ -324,7 +321,6 @@ void Rotacionar(bool first)
     {
         GameObject.Find("EventSystem").GetComponent<AnotaPos>().AnotaCSV(ConversorTempo((double)json[jtokens[0]]).ToString("HH:mm:ss.fff")); //csv hap
 
-        /*
         if (Detectando)
         {//Recebendo informacoes do AR Tracking
             
@@ -365,7 +361,6 @@ void Rotacionar(bool first)
                 }
             }
         }
-        */
     }
 
 
