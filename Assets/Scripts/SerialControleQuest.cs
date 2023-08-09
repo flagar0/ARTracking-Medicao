@@ -55,7 +55,7 @@ public class SerialControleQuest : MonoBehaviour
 
     Vector3 UltimaPos;//Vetor que guarda a ultima posicao do objeto
     StreamWriter arquivo; //Arquivo que serao  armazenados os dados
-    string[] jtokens = {"timestamp","success","translation_x","translation_y","translation_z","rotation_x","rotation_y","rotation_z","rotation_w"};//cabecalho do ar track
+    string[] jtokens = { "timestamp", "success", "translation_x", "translation_y", "translation_z", "rotation_x", "rotation_y", "rotation_z", "rotation_w" };//cabecalho do ar track
 
     bool gravar = false; //bool para comecar a gravar
     public GameObject rec; //UI que avisa se esta gravando
@@ -68,7 +68,7 @@ public class SerialControleQuest : MonoBehaviour
     void Start()
     {
         CriaCSV();
-        GameObject.Find("dead").GetComponent<Text>().text= DeadReckoing.ToString();
+        GameObject.Find("dead").GetComponent<Text>().text = DeadReckoing.ToString();
         _inputData = GetComponent<InputData>();
     }
 
@@ -77,13 +77,13 @@ public class SerialControleQuest : MonoBehaviour
         try
         {
             Directory.CreateDirectory(Application.dataPath
-                                        + "/Data/" +System.DateTime.Now.Hour.ToString()
-                                        +"-"+System.DateTime.Now.Minute.ToString()
-                                        +"-"+System.DateTime.Now.Second.ToString()+"/"); 
+                                        + "/Data/" + System.DateTime.Now.Hour.ToString()
+                                        + "-" + System.DateTime.Now.Minute.ToString()
+                                        + "-" + System.DateTime.Now.Second.ToString() + "/");
             arquivo = new StreamWriter(Application.dataPath
-                                        + "/Data/" +System.DateTime.Now.Hour.ToString()+"-"
-                                        +System.DateTime.Now.Minute.ToString()+"-"
-                                        +System.DateTime.Now.Second.ToString()+"/"+
+                                        + "/Data/" + System.DateTime.Now.Hour.ToString() + "-"
+                                        + System.DateTime.Now.Minute.ToString() + "-"
+                                        + System.DateTime.Now.Second.ToString() + "/" +
                                         "Medicao_QUEST.csv");
             for (int i = 0; i < jtokens.Length; i++)
             {
@@ -124,8 +124,8 @@ public class SerialControleQuest : MonoBehaviour
             }
 
         }
-        GameObject.Find("EventSystem").GetComponent<AnotaPosQuest>().AnotaCSV(ConversorTempo((double)json[jtokens[0]]).ToString("HH:mm:ss.fff")); //csv hap
-        
+        GameObject.Find("CuboAR").GetComponent<AnotaPosQuest>().AnotaCSV(ConversorTempo((double)json[jtokens[0]]).ToString("HH:mm:ss.fff")); //csv hap
+
         if (_inputData._leftController.TryGetFeatureValue(CommonUsages.devicePosition, out Vector3 position))
         {
             arquivo.Write(ConversorTempo((double)json[jtokens[0]]).ToString("HH:mm:ss.fff"));
@@ -190,7 +190,7 @@ public class SerialControleQuest : MonoBehaviour
                 }
 
                 AnotaCSV(true);
-                
+
                 oldPositions[0] = newPositions[0];
                 oldPositions[1] = newPositions[1];
                 oldPositions[2] = newPositions[2];
@@ -200,7 +200,7 @@ public class SerialControleQuest : MonoBehaviour
             else
             {//Caso o cubo nao esteja sendoreconhecido
                 new_timestamp = json["timestamp"].ToString();
-                uma_vez=false;
+                uma_vez = false;
                 /* TIMESPAN do sistema
                 TimeSpan tempo = System.DateTime.Now.Subtract(System.DateTime.UnixEpoch);
                 Debug.Log(tempo.TotalMilliseconds / 1000 + " aaaa");
@@ -210,7 +210,7 @@ public class SerialControleQuest : MonoBehaviour
                 {
                     AnotaCSV(false);
                     old_timestamp = new_timestamp;
-                }   
+                }
             }
         }
         catch (System.Exception e)
@@ -219,7 +219,7 @@ public class SerialControleQuest : MonoBehaviour
         }
     }
 
-void Rotacionar(bool first)
+    void Rotacionar(bool first)
     {
 
         float rot_min = 0.8f;
@@ -247,26 +247,29 @@ void Rotacionar(bool first)
     void Transladar()
     {
         float Dis_min = 0.05f;
-        float Dis_max = 1f ;
+        float Dis_max = 1f;
 
         Vector3 NextMov = new Vector3((newPositions[0] - oldPositions[0]) * config.x_inversor, (-newPositions[1] + oldPositions[1]) * config.y_inversor, (-newPositions[2] + oldPositions[2]) * config.z_inversor);
 
         Vector3 NewCubo = Cubo.transform.position + NextMov;
         var distancia = Vector3.Distance(Cubo.transform.position, NewCubo);
-        
-        if(distancia!=0){
+
+        if (distancia != 0)
+        {
             //Debug.Log("Trans:"+distancia.ToString());
         }
-        
+
         //Debug.Log(Cubo.transform.forward);
         if (distancia >= Dis_min && distancia <= Dis_max)
         {
             Cubo.transform.Translate(NextMov, Space.World);
-            Debug.Log("X: "+ meanPositions(lastPosition,"x") + " Y: " + meanPositions(lastPosition,"y") + " Z: " + meanPositions(lastPosition,"z"));
+            Debug.Log("X: " + meanPositions(lastPosition, "x") + " Y: " + meanPositions(lastPosition, "y") + " Z: " + meanPositions(lastPosition, "z"));
             AddPositionsInList(new Vector3(newPositions[0], newPositions[1], newPositions[2]));
             //Cubo.transform.position=new Vector3(newPositions[0]* config.x_inversor,newPositions[1]* config.y_inversor,(newPositions[2]* config.z_inversor)-72f);
-        }else if(distancia > Dis_max){
-            Cubo.transform.Translate(new Vector3(meanPositions(lastPosition,"x"),meanPositions(lastPosition,"y"),meanPositions(lastPosition,"z")), Space.World);
+        }
+        else if (distancia > Dis_max)
+        {
+            Cubo.transform.Translate(new Vector3(meanPositions(lastPosition, "x"), meanPositions(lastPosition, "y"), meanPositions(lastPosition, "z")), Space.World);
             //AddPositionsInList(lastPosition[lastPosition.Count]);
         }
 
@@ -288,17 +291,17 @@ void Rotacionar(bool first)
     }
     void SalvaDadosJson()
     {
-		//Definição dos novos valores de translação
+        //Definição dos novos valores de translação
         newPositions[0] = float.Parse(json["translation_x"].ToString()) / config.Sensibilidade;
         newPositions[1] = float.Parse(json["translation_y"].ToString()) / config.Sensibilidade;
         newPositions[2] = float.Parse(json["translation_z"].ToString()) / config.Sensibilidade;
-		
-		//Definição dos novos valores de rotação (up)
+
+        //Definição dos novos valores de rotação (up)
         newPositions[6] = float.Parse(json["rotation_up_x"].ToString());
         newPositions[7] = float.Parse(json["rotation_up_y"].ToString());
         newPositions[8] = float.Parse(json["rotation_up_z"].ToString());
-		
-		//Definição dos novos valores de rotação (forward)
+
+        //Definição dos novos valores de rotação (forward)
         newPositions[9] = float.Parse(json["rotation_forward_x"].ToString());
         newPositions[10] = float.Parse(json["rotation_forward_y"].ToString());
         newPositions[11] = float.Parse(json["rotation_forward_z"].ToString());
@@ -307,38 +310,38 @@ void Rotacionar(bool first)
 
     void AnotaCSV(bool Detectando)
     {
-        GameObject.Find("EventSystem").GetComponent<AnotaPosQuest>().AnotaCSV(ConversorTempo((double)json[jtokens[0]]).ToString("HH:mm:ss.fff")); //csv hap
+        GameObject.Find("CuboAR").GetComponent<AnotaPosQuest>().AnotaCSV(ConversorTempo((double)json[jtokens[0]]).ToString("HH:mm:ss.fff")); //csv hap
 
         if (Detectando)
         {//Recebendo informacoes do AR Tracking
-            
-                arquivo.Write(ConversorTempo((double)json[jtokens[0]]).ToString("HH:mm:ss.fff"));
-                arquivo.Write(";");
-                arquivo.Write(json[jtokens[1]].ToString());
-                arquivo.Write(";");
-                arquivo.Write(json[jtokens[2]].ToString());
-                arquivo.Write(";");
-                arquivo.Write(json[jtokens[3]].ToString());
-                arquivo.Write(";");
-                arquivo.Write(json[jtokens[4]].ToString());
-                arquivo.Write(";");
-                arquivo.Write(Cubo.transform.localRotation.x.ToString());
-                arquivo.Write(";");
-                arquivo.Write(Cubo.transform.localRotation.y.ToString());
-                arquivo.Write(";");
-                arquivo.Write(Cubo.transform.localRotation.z.ToString());
-                arquivo.Write(";");
-                arquivo.Write(Cubo.transform.localRotation.w.ToString());
-                arquivo.WriteLine();
+
+            arquivo.Write(ConversorTempo((double)json[jtokens[0]]).ToString("HH:mm:ss.fff"));
+            arquivo.Write(";");
+            arquivo.Write(json[jtokens[1]].ToString());
+            arquivo.Write(";");
+            arquivo.Write(json[jtokens[2]].ToString());
+            arquivo.Write(";");
+            arquivo.Write(json[jtokens[3]].ToString());
+            arquivo.Write(";");
+            arquivo.Write(json[jtokens[4]].ToString());
+            arquivo.Write(";");
+            arquivo.Write(Cubo.transform.localRotation.x.ToString());
+            arquivo.Write(";");
+            arquivo.Write(Cubo.transform.localRotation.y.ToString());
+            arquivo.Write(";");
+            arquivo.Write(Cubo.transform.localRotation.z.ToString());
+            arquivo.Write(";");
+            arquivo.Write(Cubo.transform.localRotation.w.ToString());
+            arquivo.WriteLine();
         }
         else
         { // AR tracking parou de enviar armazena so o tempo e o sucess
             for (int i = 0; i < 2; i++)
             {
-                
 
-                if (i ==0)
-                { 
+
+                if (i == 0)
+                {
                     arquivo.Write(ConversorTempo((double)json[jtokens[i]]).ToString("HH:mm:ss.fff"));
                     arquivo.Write(";");
                 }
@@ -359,66 +362,74 @@ void Rotacionar(bool first)
         Debug.Log("Salvo com sucesso");
     }
 
-    public static DateTime ConversorTempo( double unixTimeStamp )
-{
-    // Unix timestamp is seconds past epoch
-    DateTime dateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
-    dateTime = dateTime.AddSeconds( unixTimeStamp ).ToLocalTime();
-    return dateTime;
-}
+    public static DateTime ConversorTempo(double unixTimeStamp)
+    {
+        // Unix timestamp is seconds past epoch
+        DateTime dateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+        dateTime = dateTime.AddSeconds(unixTimeStamp).ToLocalTime();
+        return dateTime;
+    }
 
-///<summary>Classe <c>meanPositions</c> retorna a média das distancias entre cada posicao armazenada
+    ///<summary>Classe <c>meanPositions</c> retorna a média das distancias entre cada posicao armazenada
     ///</summary>
-    private float meanPositions(List<Vector3> positions,string tipo) {//x,y,z,distancia
+    private float meanPositions(List<Vector3> positions, string tipo)
+    {//x,y,z,distancia
         if (positions.Count < 1) return 0;
-        float mean=0;
+        float mean = 0;
         float sum = 0;
-        switch(tipo){
+        switch (tipo)
+        {
             case "x":
-            for(int i=0;i<positions.Count-1;i++) {// de 0 a te 58 medindo a distancia entre um e o proximo a ele
-            var distance = positions[i].x-positions[i+1].x;
-            sum += distance;
-        }
+                for (int i = 0; i < positions.Count - 1; i++)
+                {// de 0 a te 58 medindo a distancia entre um e o proximo a ele
+                    var distance = positions[i].x - positions[i + 1].x;
+                    sum += distance;
+                }
 
-        mean = sum / (positions.Count-1);
-            break;
+                mean = sum / (positions.Count - 1);
+                break;
             case "y":
-            for(int i=0;i<positions.Count-1;i++) {// de 0 a te 58 medindo a distancia entre um e o proximo a ele
-            var distance = positions[i].y-positions[i+1].y;
-            sum += distance;
-        }
+                for (int i = 0; i < positions.Count - 1; i++)
+                {// de 0 a te 58 medindo a distancia entre um e o proximo a ele
+                    var distance = positions[i].y - positions[i + 1].y;
+                    sum += distance;
+                }
 
-        mean = sum / (positions.Count-1);
-            break;
+                mean = sum / (positions.Count - 1);
+                break;
             case "z":
-            for(int i=0;i<positions.Count-1;i++) {// de 0 a te 58 medindo a distancia entre um e o proximo a ele
-            var distance = positions[i].z-positions[i+1].z;
-            sum += distance;
-        }
+                for (int i = 0; i < positions.Count - 1; i++)
+                {// de 0 a te 58 medindo a distancia entre um e o proximo a ele
+                    var distance = positions[i].z - positions[i + 1].z;
+                    sum += distance;
+                }
 
-        mean = sum / (positions.Count-1);
-        
-            break;
+                mean = sum / (positions.Count - 1);
+
+                break;
             case "distancia":
-            for(int i=0;i<positions.Count-1;i++) {// de 0 a te 58 medindo a distancia entre um e o proximo a ele
-            var distance = Vector3.Distance(positions[i],positions[i+1]);
-            sum += distance;
-        }
+                for (int i = 0; i < positions.Count - 1; i++)
+                {// de 0 a te 58 medindo a distancia entre um e o proximo a ele
+                    var distance = Vector3.Distance(positions[i], positions[i + 1]);
+                    sum += distance;
+                }
 
-        mean = sum / (positions.Count-1);
-            break;
+                mean = sum / (positions.Count - 1);
+                break;
         }
 
         return mean;
     }
 
 
-///<summary>Classe <c>AddPositionsInList</c> guarda os valores de rotação atuais em listas correspondentes.
+    ///<summary>Classe <c>AddPositionsInList</c> guarda os valores de rotação atuais em listas correspondentes.
     ///</summary>
-    private void AddPositionsInList(Vector3 vetor) {
+    private void AddPositionsInList(Vector3 vetor)
+    {
         // Se já tem mais de 60 frames guardados,
         // apaga o mais antigo, de index 0
-        if (lastPosition.Count >= 60) {
+        if (lastPosition.Count >= 60)
+        {
             lastPosition.RemoveAt(0);
         }
 
