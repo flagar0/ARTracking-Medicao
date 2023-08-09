@@ -7,23 +7,13 @@ using System.Text;
 using Newtonsoft.Json.Linq;
 using System.IO;
 using UnityEngine.UI;
+using UnityEngine.XR;
 using System;
 
-public class SerialControleComW : MonoBehaviour
+[RequireComponent(typeof(InputData))]
+public class SerialControleQuest : MonoBehaviour
 {
-
-
-    UdpClient clientData;
-
-    [Header("Server UDP")]
-    public int portData = 9000;
-    public int receiveBufferSize = 120000;
-
-    IPEndPoint ipEndPointData;
-    private object obj = null;
-    private System.AsyncCallback AC;
-    byte[] receivedBytes;
-    ////////////////////////////////////////////
+    private InputData _inputData;
     float[] oldPositions = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };//[0-2]x ,y, z - [3-5]right - [6-8]up - [9-11]forward
     float[] newPositions = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };///[0-2]x ,y, z - [3-5]right - [6-8]up - [9-11]forward
     JObject json;//Json aonde ficara salvo os valores vindos do AR - Tracking
@@ -77,9 +67,9 @@ public class SerialControleComW : MonoBehaviour
     public Configuracoes config;
     void Start()
     {
-        ConectarUDP();
         CriaCSV();
         GameObject.Find("dead").GetComponent<Text>().text= DeadReckoing.ToString();
+        _inputData = GetComponent<InputData>();
     }
 
     void CriaCSV() //Cria o arquivo CSV aonde serao armazenados os dados
@@ -94,7 +84,7 @@ public class SerialControleComW : MonoBehaviour
                                         + "/Data/" +System.DateTime.Now.Hour.ToString()+"-"
                                         +System.DateTime.Now.Minute.ToString()+"-"
                                         +System.DateTime.Now.Second.ToString()+"/"+
-                                        "Medicao_AR.csv");
+                                        "Medicao_QUEST.csv");
             for (int i = 0; i < jtokens.Length; i++)
             {
                 arquivo.Write(jtokens[i]);
@@ -112,32 +102,9 @@ public class SerialControleComW : MonoBehaviour
         catch (System.Exception e)
         {
             Debug.Log(e);
-
         }
 
     }
-    public void ConectarUDP() //Conecta no servidor  do AR TRacking
-    {
-        ipEndPointData = new IPEndPoint(IPAddress.Loopback, portData);
-        clientData = new UdpClient();
-        clientData.Client.ReceiveBufferSize = receiveBufferSize;
-        clientData.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, optionValue: true);
-        clientData.Client.Bind(ipEndPointData);
-        Debug.Log("BufSize: " + clientData.Client.ReceiveBufferSize);
-        AC = new System.AsyncCallback(LeitorUDP);
-        clientData.BeginReceive(AC, obj);
-        Debug.Log("Conectando com AR Tracking");
-    }
-
-    void LeitorUDP(System.IAsyncResult result) // Le os dados enviados pelo AR Tracking
-    {
-        receivedBytes = clientData.EndReceive(result, ref ipEndPointData);
-        byte[] receiveBytes = clientData.Receive(ref ipEndPointData);
-        receivedString = Encoding.ASCII.GetString(receiveBytes);
-        json = JObject.Parse(receivedString);//Salva os dados recebidos do AR no json
-        clientData.BeginReceive(AC, obj);
-    }
-
 
     private void Update()
     {
@@ -155,6 +122,28 @@ public class SerialControleComW : MonoBehaviour
                 rec.SetActive(false);
                 FechaCSV();
             }
+
+        }
+        GameObject.Find("EventSystem").GetComponent<AnotaPosQuest>().AnotaCSV(ConversorTempo((double)json[jtokens[0]]).ToString("HH:mm:ss.fff")); //csv hap
+        
+        if (_inputData._leftController.TryGetFeatureValue(CommonUsages.devicePosition, out Vector3 position))
+        {
+            arquivo.Write(ConversorTempo((double)json[jtokens[0]]).ToString("HH:mm:ss.fff"));
+            arquivo.Write(";");
+            arquivo.Write(json[jtokens[1]].ToString());
+            arquivo.Write(";");
+            arquivo.Write(json[jtokens[2]].ToString());
+            arquivo.Write(";");
+            arquivo.Write(json[jtokens[3]].ToString());
+            arquivo.Write(";");
+            arquivo.Write(json[jtokens[4]].ToString());
+            arquivo.Write(";");
+            arquivo.Write(position.x.ToString());
+            arquivo.Write(";");
+            arquivo.Write(position.y.ToString());
+            arquivo.Write(";");
+            arquivo.Write(position.z.ToString());
+            arquivo.WriteLine();
 
         }
 
@@ -182,34 +171,25 @@ public class SerialControleComW : MonoBehaviour
                 }
 
 
-                if(DeadReckoing){
+                if (DeadReckoing)
+                {
                     Transladar();
                     Rotacionar(false);
-                }else{
-                
-            
-                Cubo.transform.Translate(new Vector3((newPositions[0] - oldPositions[0]) * config.x_inversor, (-newPositions[1] + oldPositions[1]) * config.y_inversor, (-newPositions[2] + oldPositions[2]) * config.z_inversor), Space.World);
-                //Cubo.transform.position=new Vector3(newPositions[0]* config.x_inversor,newPositions[1]* config.y_inversor,(newPositions[2]* config.z_inversor)-72f);
-                //LimitesCubo();//Limites  de translacao do cubo
+                }
+                else
+                {
+                    Cubo.transform.Translate(new Vector3((newPositions[0] - oldPositions[0]) * config.x_inversor,
+                                                            (-newPositions[1] + oldPositions[1]) * config.y_inversor,
+                                                            (-newPositions[2] + oldPositions[2]) * config.z_inversor),
+                                                            Space.World);
 
-                //Rotacao 
-                Vector3 up = new Vector3(newPositions[6], newPositions[7], newPositions[8]);
-                Vector3 forward = new Vector3(newPositions[9], newPositions[10], newPositions[11]);
-                Cubo.transform.localRotation = Quaternion.LookRotation(forward, up);
-                }    
-
-                //Translacao
-                
-
-                // if (gravar && new_timestamp != old_timestamp) //Nao deixa repetir os valores no mesmo tempo
-                // {
-                //     AnotaCSV(true); //csv ar
-                // }
+                    //Rotacao 
+                    Vector3 up = new Vector3(newPositions[6], newPositions[7], newPositions[8]);
+                    Vector3 forward = new Vector3(newPositions[9], newPositions[10], newPositions[11]);
+                    Cubo.transform.localRotation = Quaternion.LookRotation(forward, up);
+                }
 
                 AnotaCSV(true);
-
-                //Salva posicoes antigas
-                //Debug.Log(news[0]);
                 
                 oldPositions[0] = newPositions[0];
                 oldPositions[1] = newPositions[1];
@@ -221,7 +201,6 @@ public class SerialControleComW : MonoBehaviour
             {//Caso o cubo nao esteja sendoreconhecido
                 new_timestamp = json["timestamp"].ToString();
                 uma_vez=false;
-                Infos_debug.text = "Nao Conectado " + new_timestamp;
                 /* TIMESPAN do sistema
                 TimeSpan tempo = System.DateTime.Now.Subtract(System.DateTime.UnixEpoch);
                 Debug.Log(tempo.TotalMilliseconds / 1000 + " aaaa");
@@ -230,8 +209,8 @@ public class SerialControleComW : MonoBehaviour
                 if (gravar && new_timestamp != old_timestamp)
                 {
                     AnotaCSV(false);
-                }
-                old_timestamp = new_timestamp;
+                    old_timestamp = new_timestamp;
+                }   
             }
         }
         catch (System.Exception e)
@@ -274,6 +253,7 @@ void Rotacionar(bool first)
 
         Vector3 NewCubo = Cubo.transform.position + NextMov;
         var distancia = Vector3.Distance(Cubo.transform.position, NewCubo);
+        
         if(distancia!=0){
             //Debug.Log("Trans:"+distancia.ToString());
         }
@@ -282,8 +262,8 @@ void Rotacionar(bool first)
         if (distancia >= Dis_min && distancia <= Dis_max)
         {
             Cubo.transform.Translate(NextMov, Space.World);
-            Debug.Log("X: "+meanPositions(lastPosition,"x")+" Y: "+meanPositions(lastPosition,"y")+" Z: "+meanPositions(lastPosition,"z"));
-            AddPositionsInList(new Vector3(newPositions[0],newPositions[1],newPositions[2]));
+            Debug.Log("X: "+ meanPositions(lastPosition,"x") + " Y: " + meanPositions(lastPosition,"y") + " Z: " + meanPositions(lastPosition,"z"));
+            AddPositionsInList(new Vector3(newPositions[0], newPositions[1], newPositions[2]));
             //Cubo.transform.position=new Vector3(newPositions[0]* config.x_inversor,newPositions[1]* config.y_inversor,(newPositions[2]* config.z_inversor)-72f);
         }else if(distancia > Dis_max){
             Cubo.transform.Translate(new Vector3(meanPositions(lastPosition,"x"),meanPositions(lastPosition,"y"),meanPositions(lastPosition,"z")), Space.World);
@@ -327,7 +307,7 @@ void Rotacionar(bool first)
 
     void AnotaCSV(bool Detectando)
     {
-        GameObject.Find("EventSystem").GetComponent<AnotaPos>().AnotaCSV(ConversorTempo((double)json[jtokens[0]]).ToString("HH:mm:ss.fff")); //csv hap
+        GameObject.Find("EventSystem").GetComponent<AnotaPosQuest>().AnotaCSV(ConversorTempo((double)json[jtokens[0]]).ToString("HH:mm:ss.fff")); //csv hap
 
         if (Detectando)
         {//Recebendo informacoes do AR Tracking
@@ -377,18 +357,6 @@ void Rotacionar(bool first)
         arquivo.Flush();
         arquivo.Close();
         Debug.Log("Salvo com sucesso");
-    }
-    void OnDestroy()//Desliga a leitura do ar tracking quando o jogo fecha
-    {
-        if (clientData != null)
-        {
-            clientData.Close();
-            if (gravar)
-            {
-                FechaCSV();
-            }
-        }
-
     }
 
     public static DateTime ConversorTempo( double unixTimeStamp )

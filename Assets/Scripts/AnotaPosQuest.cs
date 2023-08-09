@@ -4,23 +4,15 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.IO;
 
-public class AnotaPos : MonoBehaviour
+public class AnotaPosQuest : MonoBehaviour
 {
 
     private StreamWriter arquivo;
-    public GameObject Haptico;
     public GameObject AR;
     string[] header = {"timestamp","AR_x","AR_y","AR_z","AR_ang_x","AR_ang_y","AR_ang_z","AR_ang_w","Distancia","HAP_x","HAP_y","HAP_z","HAP_ang_x","HAP_ang_y","HAP_ang_z","HAP_ang_w"};
     string[] data={"0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0"};
-     Vector3 PosicoesHaptico;
-     Quaternion AnguloHaptico;
      Vector3 PosicoesAR;
      Quaternion AnguloAR;
-    float Distancia;
-
-    public Slider marcador;
-    public Image cor;
-    public Text Lbl_dist;
 
     void Start()
     {
@@ -30,26 +22,11 @@ public class AnotaPos : MonoBehaviour
      void Update() {
         PosicoesAR = AR.transform.position;
         AnguloAR = AR.transform.rotation;
-        PosicoesHaptico = Haptico.transform.position;
-        AnguloHaptico = Haptico.transform.rotation;
-
-        Distancia = Vector3.Distance(PosicoesAR,PosicoesHaptico);
-        FazSlide();
         SalvaDados();
     }
 
-void FazSlide(){
-    marcador.value = Distancia;
-    Lbl_dist.text=Distancia.ToString();
-    if(Distancia<=2){
-        cor.color=Color.green;
-    }else if(Distancia>=30){
-        cor.color=Color.red;
-    }else{
-        cor.color=Color.yellow;
-    }
-}
-void SalvaDados(){
+    void SalvaDados()
+    {
         data[1]=PosicoesAR.x.ToString();
         data[2]=PosicoesAR.y.ToString();
         data[3]=PosicoesAR.z.ToString();
@@ -57,15 +34,7 @@ void SalvaDados(){
         data[5]=AnguloAR.y.ToString();
         data[6]=AnguloAR.z.ToString();
         data[7]=AnguloAR.w.ToString();
-        data[8]=Distancia.ToString();
-        data[9]=PosicoesHaptico.x.ToString();
-        data[10]=PosicoesHaptico.y.ToString();
-        data[11]=PosicoesHaptico.z.ToString();
-        data[12]=AnguloHaptico.x.ToString();
-        data[13]=AnguloHaptico.y.ToString();
-        data[14]=AnguloHaptico.z.ToString();
-        data[15]=AnguloHaptico.w.ToString();    
-        }
+    }
 
 //Cria o arquivo CSV aonde serao armazenados os dados
 void CriaCSV() 
@@ -128,7 +97,6 @@ public void AnotaCSV(string timestamp)
                 arquivo.WriteLine();
             }
         }
-        Debug.Log(Distancia);
     }
     void FechaCSV()
     {

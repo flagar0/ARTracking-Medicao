@@ -1636,28 +1636,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1638775757}
   m_CullTransparentMesh: 1
---- !u!1 &1783141732 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 4095707935632647504, guid: 0bdc3db64a0d9d8489fe0f5364914341, type: 3}
-  m_PrefabInstance: {fileID: 886463848}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &1783141736
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1783141732}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e677ec2a702ec51448b6ba2441f76898, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Haptico: {fileID: 2018195082}
-  AR: {fileID: 2018195082}
-  marcador: {fileID: 0}
-  cor: {fileID: 0}
-  Lbl_dist: {fileID: 0}
 --- !u!1 &1802214730
 GameObject:
   m_ObjectHideFlags: 0
@@ -1812,35 +1790,6 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 163113e04c4b89342ac017a46d8704d2, type: 3}
   m_PrefabInstance: {fileID: 2018195081}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &2018195083
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2018195082}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: de8721cd7ccb45147bac029e18726792, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  portData: 9000
-  receiveBufferSize: 120000
-  Cubo: {fileID: 2018195082}
-  rec: {fileID: 25736431}
-  Infos_debug: {fileID: 1638775759}
-  DeadReckoing: 0
-  config:
-    x_inversor: 1
-    y_inversor: 1
-    z_inversor: -1
-    Sensibilidade: 3
-    max_x: 100
-    min_x: -100
-    max_y: 40
-    min_y: -40
-    max_z: 100
-    min_z: -100
 --- !u!114 &2018195085
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2019,3 +1968,55 @@ MeshCollider:
   m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &2018195089
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2018195082}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ddca5a9ce6dfa084c89c4e10a5bad472, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &2018195090
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2018195082}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fa14cc0369032d24399471acbab170f6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Cubo: {fileID: 2018195082}
+  rec: {fileID: 0}
+  Infos_debug: {fileID: 0}
+  DeadReckoing: 0
+  config:
+    x_inversor: 1
+    y_inversor: 1
+    z_inversor: 1
+    Sensibilidade: 5
+    max_x: 4
+    min_x: -4
+    max_y: 2.5
+    min_y: -2.5
+    max_z: 4
+    min_z: -4
+--- !u!114 &2018195091
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2018195082}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f0943c6356bbe6a469696dd3c8891983, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  AR: {fileID: 2018195082}
