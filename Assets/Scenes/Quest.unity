@@ -158,7 +158,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
-  m_AnchoredPosition: {x: 123, y: 24.580002}
+  m_AnchoredPosition: {x: 123, y: 24.579956}
   m_SizeDelta: {x: 283.7274, y: 48.816498}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &25736433
@@ -1006,7 +1006,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!81 &967553574
 AudioListener:
   m_ObjectHideFlags: 0
@@ -1190,7 +1190,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: -148, y: 18.642}
+  m_AnchoredPosition: {x: -148, y: 18.641968}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1107926281
@@ -1980,7 +1980,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ddca5a9ce6dfa084c89c4e10a5bad472, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &2018195090
+--- !u!114 &2018195093
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1989,34 +1989,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 2018195082}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fa14cc0369032d24399471acbab170f6, type: 3}
+  m_Script: {fileID: 11500000, guid: 8ca51a205d708d74ea2534f498b1cd72, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Cubo: {fileID: 2018195082}
-  rec: {fileID: 0}
-  Infos_debug: {fileID: 0}
-  DeadReckoing: 0
-  config:
-    x_inversor: 1
-    y_inversor: 1
-    z_inversor: 1
-    Sensibilidade: 5
-    max_x: 4
-    min_x: -4
-    max_y: 2.5
-    min_y: -2.5
-    max_z: 4
-    min_z: -4
---- !u!114 &2018195091
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2018195082}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f0943c6356bbe6a469696dd3c8891983, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  AR: {fileID: 2018195082}

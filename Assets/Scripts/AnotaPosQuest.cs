@@ -106,9 +106,9 @@ public void AnotaCSV(string timestamp)
 
     void OnDestroy()
     {
-                FechaCSV();
-        }
-
+        FechaCSV();
     }
+
+}
 
 
